@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jornal Matinal</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f0f;--bg-card:#1a1a1a;--bg-hover:#202020;--bg-surface:#141414;
+  --border:#2a2a2a;--border2:#3a3a3a;
+  --txt:#f0ede8;--txt2:#888880;--txt3:#555550;
+  --amber:#d4920a;--amber2:#f5b93a;--amber3:#3a2800;
+  --green:#2d6a2d;--green2:#7ec87e;--red:#6a2020;--red2:#e87e7e;--blue:#7eb8e8;
+  --serif:'Georgia','Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+body[data-theme="light"]{
+  --bg:#ffffff;--bg-card:#ffffff;--bg-hover:#f5f5f5;--bg-surface:#ffffff;
+  --border:#d9d9d9;--border2:#bfbfbf;
+  --txt:#000000;--txt2:#1f1f1f;--txt3:#4b4b4b;
+  --amber:#b26a00;--amber2:#8f5200;--amber3:#f8e4bf;
+  --green:#dff0d9;--green2:#317346;--red:#f6dfdf;--red2:#8e3b3b;--blue:#1f67b3;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:15px;line-height:1.6;min-height:100vh;transition:background .2s,color .2s}
+
+/* HEADER */
+.hd{border-bottom:1px solid var(--border);padding:0 32px}
+.hd-top{display:flex;align-items:center;justify-content:space-between;padding:20px 0 16px;gap:16px;flex-wrap:wrap}
+.brand{font-family:var(--serif);font-size:28px;font-weight:400;letter-spacing:-.5px}
+.brand em{color:var(--amber);font-style:normal}
+.brand-date{font-size:12px;color:var(--txt3);letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.hd-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.pill{display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:7px 14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.pill-lbl{font-size:13px;color:var(--txt2)}
+.pill-val{font-size:13px;color:var(--amber2);font-variant-numeric:tabular-nums;font-family:'Menlo',monospace}
+
+.badge{font-size:11px;padding:4px 10px;border-radius:4px;font-weight:500;letter-spacing:.04em}
+.b-wait{background:#1e1e00;color:#c8a800}
+.b-ok{background:var(--green);color:var(--green2)}
+.b-err{background:var(--red);color:var(--red2)}
+.b-load{background:var(--amber3);color:var(--amber2)}
+
+.btn{display:inline-flex;align-items:center;gap:7px;font-size:13px;padding:7px 16px;border-radius:6px;border:1px solid var(--border2);background:var(--bg-card);color:var(--txt);cursor:pointer;font-family:var(--sans);white-space:nowrap;transition:background .15s,border-color .15s,color .15s,border-color .15s}
+.btn:hover{background:var(--bg-hover);border-color:#4a4a4a}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-amber{background:var(--amber3);border-color:var(--amber);color:var(--amber2)}
+.btn-amber:hover{background:#4a3200}
+.btn-theme{min-width:116px;justify-content:center}
+
+/* SETTINGS */
+.cfg{display:flex;align-items:center;gap:20px;padding:12px 0;border-top:1px solid var(--border);flex-wrap:wrap}
+.cfg-grp{display:flex;align-items:center;gap:8px}
+.cfg-lbl{font-size:12px;color:var(--txt3);white-space:nowrap}
+.cfg-in{font-size:13px;padding:5px 10px;border-radius:5px;border:1px solid var(--border2);background:var(--bg-surface);color:var(--txt);outline:none;font-family:var(--sans)}
+.cfg-in:focus{border-color:var(--amber)}
+.cfg-in[type=number]{width:68px}
+.cfg-in.wide{width:230px}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);padding:0 32px}
+.tab{font-size:13px;padding:12px 20px;color:var(--txt3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--sans);transition:color .15s,border-color .15s}
+.tab:hover{color:var(--txt2)}
+.tab.active{color:var(--amber2);border-bottom-color:var(--amber)}
+.cnt{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--bg-card);color:var(--txt3);margin-left:6px}
+.tab.active .cnt{background:var(--amber3);color:var(--amber)}
+.edition-bar{display:flex;align-items:center;gap:10px;padding:12px 32px;border-bottom:1px solid var(--border);font-size:12px;color:var(--txt3)}
+.edition-bar label{white-space:nowrap}
+.edition-select{font:inherit;color:var(--txt);background:var(--bg-card);border:1px solid var(--border2);border-radius:5px;padding:5px 9px}
+.edition-meta{margin-left:auto;text-align:right}
+
+/* MAIN */
+.main{padding:28px 32px;max-width:1200px}
+.sec-hd{display:flex;align-items:baseline;gap:10px;margin-bottom:20px}
+.sec-ttl{font-family:var(--serif);font-size:18px;font-weight:400;color:var(--txt);letter-spacing:-.2px}
+.sec-line{flex:1;height:1px;background:var(--border)}
+.sec-meta{font-size:12px;color:var(--txt3)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:36px}
+.card{background:var(--bg-card);padding:20px 22px;display:flex;flex-direction:column;gap:10px;transition:background .12s}
+.card:hover{background:var(--bg-hover)}
+.card-src{font-size:11px;color:var(--amber);letter-spacing:.06em;text-transform:uppercase;font-weight:500}
+.card-ttl{font-family:var(--serif);font-size:16px;font-weight:400;line-height:1.45;letter-spacing:-.1px}
+.card-desc{font-size:13px;color:var(--txt2);line-height:1.6;flex:1;display:-webkit-box;line-clamp:4;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.card-lnk{font-size:12px;color:var(--blue);text-decoration:none;display:inline-flex;align-items:center;gap:4px;opacity:.8;margin-top:auto;transition:opacity .15s}
+.card-lnk:hover{opacity:1;text-decoration:underline}
+
+/* STATES */
+.state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;gap:16px;color:var(--txt3);text-align:center}
+.state-ico{font-size:40px}
+.state-ttl{font-size:16px;color:var(--txt2)}
+.state-sub{font-size:13px;max-width:420px;line-height:1.6}
+.spin{width:24px;height:24px;border:2px solid var(--border2);border-top-color:var(--amber);border-radius:50%;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.log{background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;padding:16px 20px;font-size:13px;line-height:2.2;margin-top:16px;font-family:'Menlo',monospace;max-width:480px;text-align:left}
+.lg{display:block}.lg.done{color:var(--green2)}.lg.act{color:var(--amber2)}.lg.pend{color:var(--txt3)}
+.err-box{background:var(--red);border:1px solid #8a3030;border-radius:8px;padding:14px 18px;font-size:13px;color:var(--red2);margin-bottom:24px;line-height:1.6}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg-card);border:1px solid var(--border2);border-radius:8px;padding:12px 18px;font-size:13px;color:var(--txt);box-shadow:0 4px 24px rgba(0,0,0,.6);transform:translateY(80px);opacity:0;transition:transform .25s,opacity .25s;z-index:999;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{border-color:#2d6a2d}.toast.err{border-color:#6a2020}
+
+.foot{border-top:1px solid var(--border);padding:16px 32px;font-size:12px;color:var(--txt3);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
+@media(max-width:600px){
+  .hd,.tabs,.main,.foot,.edition-bar{padding-left:16px;padding-right:16px}
+  .grid{grid-template-columns:1fr}
+  .brand{font-size:22px}
+  .edition-bar{flex-wrap:wrap}
+  .edition-meta{margin-left:0;text-align:left;width:100%}
+}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="hd-top">
+    <div>
+      <div class="brand">Jornal <em>Matinal</em></div>
+      <div class="brand-date" id="el-date"></div>
+    </div>
+    <div class="hd-right">
+      <div class="pill">
+        <div class="dot"></div>
+        <span class="pill-lbl">proxima edição</span>
+        <span class="pill-val" id="el-cd">--:--:--</span>
+      </div>
+      <span class="badge b-wait" id="el-status">aguardando</span>
+      <button class="btn btn-theme" id="el-theme" onclick="toggleTheme()" type="button">
+        <svg id="el-theme-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg>
+        <span id="el-theme-txt">Tema</span>
+      </button>
+      <button class="btn btn-amber" id="el-btn" onclick="refreshPublishedNews(true)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Recarregar notícias
+      </button>
+    </div>
+  </div>
+  <div class="cfg">
+    <span class="cfg-lbl">Edição diária publicada automaticamente por volta de 08:00 (horário de Brasília).</span>
+    <span id="el-upd" style="font-size:12px;color:var(--txt3);margin-left:auto"></span>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" onclick="setTab('all',this)">Todas <span class="cnt" id="c-all">0</span></button>
+  <button class="tab" onclick="setTab('tech',this)">Tecnologia <span class="cnt" id="c-tech">0</span></button>
+  <button class="tab" onclick="setTab('eco',this)">Economia <span class="cnt" id="c-eco">0</span></button>
+</nav>
+<div class="edition-bar">
+  <label for="el-edition">Apanhado do dia</label>
+  <select class="edition-select" id="el-edition" onchange="selectEdition(this.value)"></select>
+  <span class="edition-meta" id="el-edition-meta"></span>
+</div>
+
+<main class="main" id="el-main">
+  <div class="state">
+    <div class="state-ico">&#128240;</div>
+    <div class="state-ttl">Carregando o jornal</div>
+    <div class="state-sub">As edições são atualizadas automaticamente todos os dias.</div>
+  </div>
+</main>
+
+<footer class="foot">
+  <span>Jornal Matinal &mdash; NewsAPI</span>
+  <span id="el-foot"></span>
+</footer>
+<div class="toast" id="el-toast"></div>
+
+<script>
+var CACHE_KEY = 'jm_v4';
+var HISTORY_KEY = 'jm_history_v1';
+
+var news      = { tech:[], eco:[] };
+var editions  = {};
+var publishedDates = [];
+var topic     = 'all';
+var editionDate = '';
+var THEME_KEY = 'jm_theme_v1';
+var refreshing = false;
+var followingLatest = true;
+
+/* ---------- THEME ---------- */
+function getTheme() {
+  var saved = null;
+  try { saved = localStorage.getItem(THEME_KEY); } catch(e) {}
+  if (saved === 'light' || saved === 'dark') return saved;
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+function applyTheme(theme) {
+  document.body.setAttribute('data-theme', theme);
+  try { localStorage.setItem(THEME_KEY, theme); } catch(e) {}
+  var txt = document.getElementById('el-theme-txt');
+  var ico = document.getElementById('el-theme-ico');
+  if (theme === 'light') {
+    txt.textContent = 'Claro';
+    ico.innerHTML = '<path d="M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4l1.4-1.4M17 7l1.4-1.4"/><circle cx="12" cy="12" r="4"/>';
+  } else {
+    txt.textContent = 'Escuro';
+    ico.innerHTML = '<path d="M21 12.8A8.5 8.5 0 0 1 11.2 3 7.5 7.5 0 1 0 21 12.8Z"/>';
+  }
+}
+function toggleTheme() {
+  applyTheme(document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+}
+
+/* ---------- CLOCK ---------- */
+function tick() {
+  var now  = new Date();
+  var h    = 8;
+  var next = new Date(now); next.setHours(h,0,0,0);
+  if (next <= now) next.setDate(next.getDate()+1);
+  var d  = next - now;
+  var hh = Math.floor(d/3600000);
+  var mm = Math.floor((d%3600000)/60000);
+  var ss = Math.floor((d%60000)/1000);
+  document.getElementById('el-cd').textContent =
+    pad(hh)+':'+pad(mm)+':'+pad(ss);
+  var ds = now.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('el-date').textContent = ds.charAt(0).toUpperCase()+ds.slice(1);
+}
+function pad(n) { return String(n).padStart(2,'0'); }
+function todayKey() {
+  var now = new Date();
+  return now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate());
+}
+function editionLabel(key) {
+  var date = new Date(key+'T12:00:00');
+  return date.toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
+}
+function loadEditions() {
+  try {
+    var saved = JSON.parse(localStorage.getItem(HISTORY_KEY)) || {};
+    Object.keys(saved).forEach(function(key) {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(key) && saved[key]
+          && Array.isArray(saved[key].tech) && Array.isArray(saved[key].eco)) {
+        editions[key] = saved[key];
+      }
+    });
+  } catch(e) {}
+  try {
+    var cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+    if (cached && cached.at) {
+      var key = cached.date || (function() {
+        var date = new Date(cached.at);
+        return date.getFullYear()+'-'+pad(date.getMonth()+1)+'-'+pad(date.getDate());
+      })();
+      if (/^\d{4}-\d{2}-\d{2}$/.test(key) && !editions[key]
+          && Array.isArray(cached.tech) && Array.isArray(cached.eco)) {
+        editions[key] = { tech:cached.tech, eco:cached.eco, at:cached.at };
+      }
+    }
+  } catch(e) {}
+}
+function saveEditions() {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(editions));
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+function renderEditionOptions() {
+  var select = document.getElementById('el-edition');
+  var today = todayKey();
+  var keys = Array.from(new Set(Object.keys(editions).concat(publishedDates)))
+    .sort(function(a,b){return b.localeCompare(a);});
+  if (keys.indexOf(today) < 0) keys.unshift(today);
+  select.innerHTML = keys.map(function(key) {
+    return '<option value="'+key+'">'+(key===today?'Hoje · ':'')+editionLabel(key)+'</option>';
+  }).join('');
+  if (!editionDate || keys.indexOf(editionDate) < 0) editionDate = today;
+  select.value = editionDate;
+  var item = editions[editionDate];
+  var meta = document.getElementById('el-edition-meta');
+  if (!item) {
+    meta.textContent = editionDate===today ? 'A edição de hoje ainda não foi publicada.' : '';
+    return;
+  }
+  var count = item.tech.length + item.eco.length;
+  var timestamp = item.generated_at || item.at;
+  var time = timestamp ? new Date(timestamp).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) : '';
+  meta.textContent = count+' notícias'+(time?' · atualizado às '+time:'');
+}
+function selectEdition(key) {
+  editionDate = key;
+  followingLatest = key===publishedDates[0];
+  var item = editions[key];
+  renderEditionOptions();
+  if (item) {
+    showEdition(key);
+    return;
+  }
+  if (publishedDates.indexOf(key)>=0) {
+    loadPublishedEdition(key).catch(function(error) {
+      setStatus('erro ao carregar','b-err');
+      if (editions[key]) showEdition(key);
+      else showError(error.message);
+    });
+  }
+  else {
+    news = {tech:[],eco:[]};
+    updateCounts();
+    showWaiting();
+  }
+}
+function showWaiting() {
+  document.getElementById('el-main').innerHTML =
+    '<div class="state"><div class="state-ico">&#128240;</div><div class="state-ttl">Edição de hoje ainda não publicada</div>'
+    +'<div class="state-sub">A automação do GitHub prepara a edição diariamente, mesmo quando esta página está fechada. Tente recarregar em alguns minutos.</div></div>';
+}
+
+function showEdition(key) {
+  var item = editions[key];
+  if (!item) return;
+  editionDate = key;
+  news = {tech:item.tech,eco:item.eco};
+  updateCounts();
+  renderEditionOptions();
+  renderNews();
+  var timestamp = item.generated_at || item.at;
+  var updated = timestamp
+    ? new Date(timestamp).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})
+    : '';
+  var label = key===todayKey() ? 'Edição de hoje' : 'Edição de '+editionLabel(key);
+  document.getElementById('el-upd').textContent = label+(updated?' · '+updated:'');
+  document.getElementById('el-foot').textContent = 'Última edição: '+editionLabel(key)+(updated?' · '+updated:'');
+  setStatus(key===todayKey()?'atualizado':'edição anterior',key===todayKey()?'b-ok':'b-wait');
+}
+function loadPublishedEdition(key) {
+  return fetch('editions/'+encodeURIComponent(key)+'.json?_='+Date.now(),{cache:'no-store'})
+    .then(function(response) {
+      if (!response.ok) throw new Error('HTTP '+response.status);
+      return response.json();
+    })
+    .then(function(item) {
+      if (item.date!==key || !Array.isArray(item.tech) || !Array.isArray(item.eco)) {
+        throw new Error('Formato inválido para a edição '+key);
+      }
+      editions[key] = item;
+      if (!saveEditions()) toast('Edição carregada, mas não foi possível guardá-la neste navegador.','err');
+      renderEditionOptions();
+      if (editionDate===key) showEdition(key);
+    });
+}
+function refreshPublishedNews(forceLatest) {
+  if (refreshing) return;
+  refreshing = true;
+  var button = document.getElementById('el-btn');
+  button.disabled = true;
+  setStatus('atualizando...','b-load');
+  fetch('editions/index.json?_='+Date.now(),{cache:'no-store'})
+    .then(function(response) {
+      if (!response.ok) throw new Error('HTTP '+response.status);
+      return response.json();
+    })
+    .then(function(index) {
+      if (!Array.isArray(index.dates)) throw new Error('Índice de edições inválido.');
+      publishedDates = index.dates.filter(function(key) {
+        return /^\d{4}-\d{2}-\d{2}$/.test(key);
+      }).sort(function(a,b){return b.localeCompare(a);});
+      renderEditionOptions();
+      var latest = publishedDates.indexOf(index.latest)>=0 ? index.latest : publishedDates[0];
+      if (!latest) {
+        var localLatest = Object.keys(editions).sort(function(a,b){return b.localeCompare(a);})[0];
+        if (localLatest) showEdition(localLatest);
+        else {
+          setStatus('aguardando','b-wait');
+          showWaiting();
+        }
+        return;
+      }
+      var target = forceLatest || followingLatest || !editionDate ? latest : editionDate;
+      if (publishedDates.indexOf(target)<0 && !editions[target]) target=latest;
+      editionDate = target;
+      followingLatest = target===latest;
+      renderEditionOptions();
+      if (target!==latest && editions[target]) {
+        showEdition(target);
+        return;
+      }
+      return loadPublishedEdition(target);
+    })
+    .catch(function(error) {
+      var fallback = editions[editionDate] ? editionDate
+        : Object.keys(editions).sort(function(a,b){return b.localeCompare(a);})[0];
+      if (fallback) {
+        editionDate = fallback;
+        followingLatest = false;
+        showEdition(fallback);
+        setStatus('offline · cache','b-wait');
+      } else {
+        showError(error.message);
+        setStatus('erro ao carregar','b-err');
+      }
+    })
+    .then(function() {
+      refreshing = false;
+      button.disabled = false;
+    },function(error) {
+      refreshing = false;
+      button.disabled = false;
+      setStatus('erro ao carregar','b-err');
+      showError(error.message);
+    });
+}
+
+/* ---------- STATUS ---------- */
+function setStatus(txt, cls) {
+  var el = document.getElementById('el-status');
+  el.textContent = txt; el.className = 'badge '+cls;
+}
+
+/* ---------- RENDER ---------- */
+function updateCounts() {
+  document.getElementById('c-all').textContent  = news.tech.length + news.eco.length;
+  document.getElementById('c-tech').textContent = news.tech.length;
+  document.getElementById('c-eco').textContent  = news.eco.length;
+}
+
+function setTab(t, el) {
+  topic = t;
+  document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  renderNews();
+}
+
+function esc(s) {
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderNews() {
+  var html = '';
+  if (topic === 'all') {
+    var total = news.tech.length + news.eco.length;
+    html += '<div class="sec-hd"><h2 class="sec-ttl">Todas</h2><div class="sec-line"></div><span class="sec-meta">'+total+' noticias</span></div>';
+    if (news.tech.length) html += section('', news.tech);
+    if (news.eco.length) html += section('Economia', news.eco);
+  } else if (topic === 'tech') {
+    if (news.tech.length) html += section('Tecnologia', news.tech);
+  } else if (topic === 'eco') {
+    if (news.eco.length) html += section('Economia', news.eco);
+  }
+  if (!html) html = '<div class="state"><div class="state-ico">&#128269;</div><div class="state-ttl">Nenhuma noticia</div></div>';
+  document.getElementById('el-main').innerHTML = html;
+}
+
+function section(label, items) {
+  var cards = items.map(function(n) {
+    return '<article class="card">'
+      + '<div class="card-src">'+esc(n.fonte)+'</div>'
+      + '<div class="card-ttl">'+esc(n.titulo)+'</div>'
+      + '<div class="card-desc">'+esc(n.resumo)+'</div>'
+      + (n.link
+          ? '<a class="card-lnk" href="'+esc(n.link)+'" target="_blank" rel="noopener">'
+            + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>'
+            + 'Ler mais</a>'
+          : '')
+      + '</article>';
+  }).join('');
+      if (!label) return '<div class="grid">'+cards+'</div>';
+      return '<div class="sec-hd"><h2 class="sec-ttl">'+label+'</h2><div class="sec-line"></div><span class="sec-meta">'+items.length+' noticias</span></div>'
+        + '<div class="grid">'+cards+'</div>';
+}
+
+function showError(msg) {
+  document.getElementById('el-main').innerHTML =
+    '<div class="err-box"><strong>Não foi possível carregar as edições:</strong><br>'+esc(msg)+'</div>'
+    +'<div class="state" style="padding-top:16px"><div class="state-sub">Confira a conexão e tente recarregar. A busca diária é executada pelo GitHub Actions.</div></div>';
+}
+
+/* ---------- TOAST ---------- */
+var toastT;
+function toast(msg, type) {
+  var el = document.getElementById('el-toast');
+  el.textContent = msg; el.className = 'toast show '+(type||'');
+  clearTimeout(toastT);
+  toastT = setTimeout(function(){ el.className='toast'; }, 3500);
+}
+
+/* ---------- INIT ---------- */
+applyTheme(getTheme());
+loadEditions();
+tick();
+refreshPublishedNews(false);
+setInterval(tick, 1000);
+setInterval(function() {
+  if (document.visibilityState==='visible') refreshPublishedNews(false);
+},5*60*1000);
+</script>
+</body>
+</html>
